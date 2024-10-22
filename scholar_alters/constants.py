@@ -1,5 +1,4 @@
 DATA_FOLDER = "./data"
-PAPERS_LABEL = 'Papers'
 SCOPES = [
     'https://mail.google.com/',
     'https://www.googleapis.com/auth/gmail.readonly',

@@ -6,6 +6,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 import logging
 from .constants import *
+from datetime import datetime, timedelta
 
 # Configure logging to both a file and the console
 if not os.path.exists("./logs"):
@@ -54,58 +55,67 @@ def get_service(data_folder='.'):
     return service
 
 
-def list_messages_with_labels(service, user_id, label_ids=[]):
+def list_messages_with_email_ids(service, user_id, email_ids=[]):
     """
-    Retrieve a list of message IDs from the user's mailbox that have the specified labels.
+    Retrieve a list of message objects from the user's mailbox using the specified email IDs.
 
     Args:
         service: Authorized Gmail API service instance.
         user_id (str): User's email address. Use "me" to indicate the authenticated user.
-        label_ids (list): List of label IDs to filter messages.
+        email_ids (list): List of email IDs to retrieve messages.
 
     Returns:
-        messages (list): List of message objects, each containing a message ID.
+        messages (list): List of message objects, each containing the details of the message.
     """
     try:
         messages = []
-        response = service.users().messages().list(userId=user_id, labelIds=label_ids).execute()
 
-        if 'messages' in response:
-            messages.extend(response['messages'])
-
-        # Paginate through all results
-        while 'nextPageToken' in response:
-            page_token = response['nextPageToken']
-            response = service.users().messages().list(userId=user_id, labelIds=label_ids, pageToken=page_token).execute()
-            messages.extend(response['messages'])
+        # Fetch messages based on the provided email IDs
+        for email_id in email_ids:
+            message = service.users().messages().get(userId=user_id, id=email_id).execute()
+            messages.append(message)  # Append the full message object to the list
 
         return messages
 
     except Exception as error:
         logging.error(f'An error occurred while listing messages: {error}')
+        return []
 
 
-def get_labels_id(service, user_id, label_names=[]):
+def get_emails_from_sender_within_day(service, user_id, sender_email='scholaralerts-noreply@google.com'):
     """
-    Retrieve the label IDs corresponding to given label names.
+    Retrieve email IDs received within the last day from a specified sender.
 
     Args:
         service: Authorized Gmail API service instance.
         user_id (str): User's email address. Use "me" to indicate the authenticated user.
-        label_names (list): List of label names to search for.
+        sender_email (str): Email address of the sender to filter messages.
 
     Returns:
-        label_ids (list): List of corresponding label IDs.
+        email_ids (list): List of email IDs received within the last day from the specified sender.
     """
     try:
-        results = service.users().labels().list(userId=user_id).execute()
-        labels = results.get('labels', [])
+        # Calculate the timestamp for 24 hours ago
+        now = datetime.utcnow()
+        yesterday = now - timedelta(days=1)
+        formatted_yesterday = yesterday.isoformat() + 'Z'  # 'Z' indicates UTC time
+        logging.info(formatted_yesterday)
 
-        # Match labels by name
-        label_ids = [label['id'] for name in label_names for label in labels if label['name'] == name]
-        return label_ids
+        # Call the Gmail API to fetch the emails
+        results = service.users().messages().list(
+            userId=user_id,
+            q=f'from:{sender_email} newer_than:1d'
+        ).execute()
+        logging.info(results)
+
+        messages = results.get('messages', [])
+        email_ids = [message['id'] for message in messages]  # Extract email IDs
+        logging.info(email_ids)
+
+        return email_ids
     except Exception as error:
-        logging.error(f'An error occurred while retrieving labels: {error}')
+        logging.error(f'An error occurred while retrieving emails: {error}')
+        return []
 
 
 def get_message(service, user_id, msg_id):
@@ -125,18 +135,3 @@ def get_message(service, user_id, msg_id):
         return message
     except Exception as error:
         logging.error(f'An error occurred while retrieving message {msg_id}: {error}')
-
-
-if __name__ == '__main__':
-    # Connect to the Gmail API
-    service = get_service()
-
-    # Get the labels' IDs for 'Papers' and 'UNREAD'
-    labels = get_labels_id(service, 'me', ['Papers', 'UNREAD'])
-
-    # List all messages with the specified labels
-    messages = list_messages_with_labels(service, "me", labels)
-    if messages:
-        logging.info(f'Found {len(messages)} messages.')
-    else:
-        logging.info('No messages found.')

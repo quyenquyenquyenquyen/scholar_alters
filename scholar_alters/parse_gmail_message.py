@@ -173,8 +173,8 @@ if __name__ == '__main__':
     service = get_service(DATA_FOLDER)
     
     # Get all messages with specific labels
-    labels = get_labels_id(service, 'me', [PAPERS_LABEL, 'UNREAD'])
-    messages = list_messages_with_labels(service, "me", labels)
+    emails = get_emails_from_sender_within_day(service, 'me')
+    messages = list_messages_with_email_ids(service, "me", emails)
     if messages:
         logging.info('Found %d messages', len(messages))
     else:
