@@ -1,25 +1,21 @@
-# -*- coding: utf-8 -*-
-"""
-Open emails and aggregate them together
-"""
-
-from __future__ import print_function
 import pickle
 import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apiclient import errors as error
+from .constants import *
+import logging
 
-
-# If modifying these scopes, delete the file token.pickle.
-SCOPES = [
-    'https://mail.google.com/',
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.modify',
-]
-CLIENTSECRETS_LOCATION = r'.\data\credentials.json'
-
+logging.basicConfig(
+    force=True,
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
+    handlers=[
+        logging.FileHandler("./logs/connect_to_gmail.log"),
+        logging.StreamHandler()
+    ]
+)
 
 def get_service(data_folder='.'):
     """Shows basic usage of the Gmail API.
@@ -79,7 +75,7 @@ def ListMessagesWithLabels(service, user_id, label_ids=[]):
 
     return messages
   except Exception as error:
-    print ('An error occurred: %s' % error)
+    logging.info('An error occurred: %s' % error)
     
     
 def GetLabelsId (service, user_id, label_names=[]):
@@ -109,11 +105,11 @@ def GetMessage(service, user_id, msg_id):
   try:
     message = service.users().messages().get(userId=user_id, id=msg_id).execute()
 
-    #print('Message snippet: %s' % message['snippet'])
+    #logging.info('Message snippet: %s' % message['snippet'])
 
     return message
   except Exception as error:
-    print ('An error occurred: %s' % error)
+    logging.info('An error occurred: %s' % error)
 
 
 
@@ -124,7 +120,7 @@ if __name__ == '__main__':
     # Get all the messages with labels
     labels = GetLabelsId(service,'me',['Papers','UNREAD'])
     messages = ListMessagesWithLabels(service,"me",labels)
-    print ('Found $d messages'%len(messages))
+    logging.info('Found $d messages'%len(messages))
     
     
     

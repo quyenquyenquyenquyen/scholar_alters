@@ -1,22 +1,22 @@
-# -*- coding: utf-8 -*-
-"""
-Open emails and aggregate them together
-"""
-
-from connect_to_gmail import  *
 import base64
 from html.parser import HTMLParser
 import webbrowser
 from os import path as ospath
 from os import makedirs
 import pickle
+from .constants import *
+from .connect_to_gmail import *
+import logging
 
-DATA_FOLDER = r'.\data'
-PAPERS_LABEL = 'Papers'
-PREV_PAPERS_FILE = r'prev_papers.pickle'
-ARCHIVE_TSV = r'archive.tsv'
-BROWSER_COMMAND = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s"
-
+logging.basicConfig(
+    force=True,
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
+    handlers=[
+        logging.FileHandler("./logs/connect_to_gmail.log"),
+        logging.StreamHandler()
+    ]
+)
 
 def clean_title(st):
     if st[0] == '[':
@@ -24,7 +24,6 @@ def clean_title(st):
     st = st.replace('\\xe2\\x80\\x8f','')
     return st.strip()
     
-
 class Paper:
     def __init__(self, ref):
         self.title = ''
@@ -115,7 +114,7 @@ if __name__ == '__main__':
     # Get all the messages with labels
     labels = GetLabelsId(service,'me',[PAPERS_LABEL,'UNREAD'])
     messages = ListMessagesWithLabels(service,"me",labels)
-    print ('Found %d messages'%len(messages))
+    logging.info('Found %d messages'%len(messages))
     
     # Parse the mails
     pa = PaperAggregator()
@@ -147,23 +146,23 @@ if __name__ == '__main__':
     
     # Sort by number of refernece mails
     pa.paper_list.sort(key=lambda a: len(set(a.ref)),reverse=True)
-    print ('Found %d papers'%len(pa.paper_list))
+    logging.info('Found %d papers'%len(pa.paper_list))
     
     # User Input
     counter = 1
     good_papers = []
     web = webbrowser.get(BROWSER_COMMAND)
     for paper in pa.paper_list:
-        print ('\n\n' + '-'*100 + '\n\n')
-        print('Message %d / %d\n'%(counter,len(pa.paper_list)))
-        print(paper)
+        logging.info('\n\n' + '-'*100 + '\n\n')
+        logging.info('Message %d / %d\n'%(counter,len(pa.paper_list)))
+        logging.info(paper)
         response = input("Interesting? (y/n) ")
         if response.strip()[:1].lower() == 'y':
             good_papers.append(paper)
             paper.set_chosen()
         counter+=1
         
-    print("Now processing...")
+    logging.info("Now processing...")
     
     # Write current papers
     with open(pickle_file,'wb') as pkl:
