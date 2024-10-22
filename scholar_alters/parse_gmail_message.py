@@ -179,7 +179,7 @@ if __name__ == '__main__':
         logging.info('Found %d messages', len(messages))
     else:
         logging.info('No messages found')
-        exit(1)
+        exit(0)
     
     # Initialize Paper Aggregator
     pa = PaperAggregator()
