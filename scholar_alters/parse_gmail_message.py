@@ -1,0 +1,206 @@
+import base64
+import json
+from html.parser import HTMLParser
+from os import path as ospath, makedirs
+import logging
+from .constants import *  # Contains constants like DATA_FOLDER, PAPERS_LABEL, etc.
+from .connect_to_gmail import *  # Contains Gmail API functions
+
+# Set up logging to both a file and the console
+logging.basicConfig(
+    force=True,
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
+    handlers=[
+        logging.FileHandler("./logs/connect_to_gmail.log"),  # Logs to file
+        logging.StreamHandler()  # Logs to console
+    ]
+)
+
+def clean_title(st):
+    """
+    Cleans and formats the title text by removing unwanted characters.
+    """
+    if st[0] == '[':
+        st = st[st.find(']') + 1:]
+    st = st.replace('\\xe2\\x80\\x8f', '')
+    return st.strip()
+
+class Paper:
+    """
+    Represents a research paper extracted from an email.
+    """
+    def __init__(self, ref):
+        self.title = ''
+        self.data = ''
+        self.link = ''
+        self.idx = ''
+        self.ref = [ref]  # Email subjects (reference) where the paper was found
+        self.chosen = 0  # By default, not chosen (as there’s no interactive part anymore)
+    
+    def add_title(self, data):
+        """
+        Adds the title of the paper after cleaning.
+        """
+        self.title += clean_title(data) + " "
+        self.idx = self.title.strip().upper()
+        
+    def add_data(self, data):
+        """
+        Adds metadata or content of the paper.
+        """
+        self.data += data + "\n"
+        
+    def add_ref(self, ref):
+        """
+        Adds a reference to the paper.
+        """
+        self.ref.append(ref)
+        
+    def to_dict(self):
+        """
+        Converts the paper object to a dictionary format for JSONL export.
+        """
+        return {
+            "title": self.title.strip(),
+            "data": self.data.strip(),
+            "link": self.link,
+            "ref": self.ref,
+            "chosen": self.chosen
+        }
+
+class PapersHTMLParser(HTMLParser):
+    """
+    Parses the HTML content of an email to extract paper details.
+    """
+    def __init__(self, author_ref):
+        super().__init__()
+        self.is_title = False
+        self.papers = []
+        self.ref = author_ref
+        
+    def handle_starttag(self, tag, attrs):
+        """
+        Handles the start of an HTML tag and checks for paper titles and links.
+        """
+        if tag == 'h3':  # h3 tag is assumed to indicate a new paper
+            self.papers.append(Paper(self.ref))
+            self.is_title = True
+        if tag == 'a' and self.is_title:
+            for attr in attrs:
+                if attr[0].lower() == 'href':
+                    self.papers[-1].link = attr[1]  # Set paper's link
+
+    def handle_endtag(self, tag):
+        """
+        Handles the end of an HTML tag.
+        """
+        if tag == 'h3':
+            self.is_title = False  # End of title section
+
+    def handle_data(self, data):
+        """
+        Handles the raw text data within HTML tags.
+        """
+        if len(self.papers) > 0:
+            if self.is_title:
+                self.papers[-1].add_title(data)  # Add title
+            else:
+                self.papers[-1].add_data(data)  # Add other content
+
+class PaperAggregator:
+    """
+    Aggregates and manages papers, ensuring no duplicates.
+    """
+    def __init__(self):
+        self.paper_list = []
+        
+    def add(self, paper):
+        """
+        Adds a paper to the list, combining references for duplicates.
+        """
+        try:
+            idx = self.paper_list.index(paper)
+            self.paper_list[idx].add_ref(paper.ref[0])
+        except ValueError:  # Paper not found, add it
+            self.paper_list.append(paper)
+            
+    def remove(self, paper):
+        """
+        Removes a paper from the list.
+        """
+        try:
+            idx = self.paper_list.index(paper)
+            self.paper_list.pop(idx)
+        except ValueError:
+            pass
+
+if __name__ == '__main__':
+    # Ensure data folder exists
+    if not ospath.exists(DATA_FOLDER):
+        makedirs(DATA_FOLDER)
+    
+    # Connect to Gmail API
+    service = get_service(DATA_FOLDER)
+    
+    # Get all messages with specific labels
+    labels = get_labels_id(service, 'me', [PAPERS_LABEL, 'UNREAD'])
+    messages = list_messages_with_labels(service, "me", labels)
+    if messages:
+        logging.info('Found %d messages', len(messages))
+    else:
+        logging.info('No messages found')
+        exit(1)
+    
+    # Initialize Paper Aggregator
+    pa = PaperAggregator()
+    
+    # Prepare a list to store metadata about processed emails
+    email_metadata = []
+
+    # Parse emails for papers
+    for msg in messages:
+        msg_content = get_message(service, "me", msg['id'])
+        
+        try:
+            msg_str = base64.urlsafe_b64decode(msg_content['payload']['body']['data'].encode('ASCII'))
+        except KeyError:
+            continue  # Skip if email has no body data
+        
+        # Extract email subject
+        msg_title = ''
+        for h in msg_content['payload']['headers']:
+            if h['name'] == 'Subject':
+                msg_title = h['value']
+        
+        # Parse the HTML content of the email
+        parser = PapersHTMLParser(msg_title)
+        parser.feed(str(msg_str))
+        
+        # Add parsed papers to the aggregator
+        for paper in parser.papers:
+            pa.add(paper)
+        
+        # Store metadata about this processed email
+        email_metadata.append({
+            "message_id": msg['id'],
+            "subject": msg_title,
+            "date": next(h['value'] for h in msg_content['payload']['headers'] if h['name'] == 'Date'),
+            "processed": True
+        })
+
+    # Export papers to JSONL file
+    papers_jsonl_path = ospath.join(DATA_FOLDER, 'papers.jsonl')
+    with open(papers_jsonl_path, 'w', encoding='utf-8') as jsonl_file:
+        for paper in pa.paper_list:
+            json.dump(paper.to_dict(), jsonl_file)
+            jsonl_file.write('\n')
+    
+    # Export email metadata to JSONL file
+    emails_jsonl_path = ospath.join(DATA_FOLDER, 'processed_emails.jsonl')
+    with open(emails_jsonl_path, 'w', encoding='utf-8') as jsonl_file:
+        for email_data in email_metadata:
+            json.dump(email_data, jsonl_file)
+            jsonl_file.write('\n')
+    
+    logging.info("Export completed: Papers and email metadata have been written to JSONL files.")
