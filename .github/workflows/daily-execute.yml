@@ -7,7 +7,7 @@ on:
   push:
     # Optionally specify branches if needed
     branches:
-      - main  # Change 'main' to the default branch of your repository if it's different
+      - master  # Change 'main' to the default branch of your repository if it's different
 
 jobs:
   execute-code:
