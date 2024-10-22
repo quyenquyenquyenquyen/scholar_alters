@@ -4,6 +4,10 @@ on:
   schedule:
     # Run every day at 00:00 UTC
     - cron: '0 0 * * *'
+  push:
+    # Optionally specify branches if needed
+    branches:
+      - main  # Change 'main' to the default branch of your repository if it's different
 
 jobs:
   execute-code:
@@ -13,7 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies for google api
+      - name: Create JSON for Token
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "data/token.json"  # Specify the path where the JSON file will be created
+          json: ${{ secrets.TOKEN_CONFIG_JSON }}  # Use the secret for the JSON content
+
+      - name: Install dependencies for Google API
         run: |
           pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
