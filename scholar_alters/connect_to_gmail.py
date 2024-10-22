@@ -8,6 +8,8 @@ import logging
 from .constants import *
 
 # Configure logging to both a file and the console
+if not os.path.exists("./logs"):
+    os.makedirs("./logs")
 logging.basicConfig(
     force=True,
     level=logging.INFO,

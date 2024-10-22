@@ -7,12 +7,15 @@ from .constants import *  # Contains constants like DATA_FOLDER, PAPERS_LABEL, e
 from .connect_to_gmail import *  # Contains Gmail API functions
 
 # Set up logging to both a file and the console
+# Ensure data folder exists
+if not os.path.exists("./logs"):
+    os.makedirs("./logs")
 logging.basicConfig(
     force=True,
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
     handlers=[
-        logging.FileHandler("./logs/connect_to_gmail.log"),  # Logs to file
+        logging.FileHandler("./logs/parse_gmail_message.log"),  # Logs to file
         logging.StreamHandler()  # Logs to console
     ]
 )
@@ -37,6 +40,13 @@ class Paper:
         self.idx = ''
         self.ref = [ref]  # Email subjects (reference) where the paper was found
         self.chosen = 0  # By default, not chosen (as there’s no interactive part anymore)
+        
+    def __str__(self):
+        return f"Title: {self.title}\n" \
+               f"Data: {self.data}\n" \
+               f"Link: {self.link}\n" \
+               f"References: {', '.join(self.ref)}\n" \
+               f"Chosen: {'Yes' if self.chosen else 'No'}"
     
     def add_title(self, data):
         """
@@ -119,11 +129,13 @@ class PaperAggregator:
         """
         Adds a paper to the list, combining references for duplicates.
         """
-        try:
-            idx = self.paper_list.index(paper)
+        idx = self.exists_by_title(paper.title)
+        
+        if idx >= 0:
             self.paper_list[idx].add_ref(paper.ref[0])
-        except ValueError:  # Paper not found, add it
-            self.paper_list.append(paper)
+        else:
+            if len(paper.title) != 0:
+                self.paper_list.append(paper)
             
     def remove(self, paper):
         """
@@ -134,6 +146,23 @@ class PaperAggregator:
             self.paper_list.pop(idx)
         except ValueError:
             pass
+
+    def exists_by_title(self, title):
+        """
+        Checks if a paper with the given title exists in the paper_list.
+
+        Args:
+            title (str): The title of the paper to search for.
+
+        Returns:
+            bool: True if a paper with the title exists, False otherwise.
+        """
+        index = 0
+        for paper in self.paper_list:
+            if paper.title == title:
+                return index
+            index += 1
+        return -1
 
 if __name__ == '__main__':
     # Ensure data folder exists
@@ -159,12 +188,17 @@ if __name__ == '__main__':
     email_metadata = []
 
     # Parse emails for papers
+    msg_count = 0
     for msg in messages:
+        msg_count += 1
+        logging.info(f"{msg_count}/{len(messages)}")
         msg_content = get_message(service, "me", msg['id'])
+        logging.info(msg_content)
         
         try:
             msg_str = base64.urlsafe_b64decode(msg_content['payload']['body']['data'].encode('ASCII'))
         except KeyError:
+            logging.warning("No body data")
             continue  # Skip if email has no body data
         
         # Extract email subject
@@ -172,6 +206,11 @@ if __name__ == '__main__':
         for h in msg_content['payload']['headers']:
             if h['name'] == 'Subject':
                 msg_title = h['value']
+                logging.info(msg_title)
+                
+        if len(msg_title) == 0:
+            logging.warning("No title")
+            continue
         
         # Parse the HTML content of the email
         parser = PapersHTMLParser(msg_title)
@@ -179,6 +218,7 @@ if __name__ == '__main__':
         
         # Add parsed papers to the aggregator
         for paper in parser.papers:
+            logging.info(paper)
             pa.add(paper)
         
         # Store metadata about this processed email
