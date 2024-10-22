@@ -1,0 +1,23 @@
+name: Daily Code Execution
+
+on:
+  schedule:
+    # Run every day at 00:00 UTC
+    - cron: '0 0 * * *'
+
+jobs:
+  execute-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies for google api
+        run: |
+          pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+      - name: Execute script
+        run: |
+          chmod +x script.sh # Make the script executable
+          ./script.sh # Run the script

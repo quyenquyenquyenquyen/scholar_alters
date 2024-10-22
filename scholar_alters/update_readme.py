@@ -1,4 +1,5 @@
 import json
+import os
 
 def load_jsonl(file_path):
     """
@@ -14,6 +15,7 @@ def load_jsonl(file_path):
 def update_readme_with_table(papers, readme_path="README.md"):
     """
     Updates the README.md file with a markdown table of papers.
+    Deletes previous content under ## Papers before appending new content.
     :param papers: List of paper objects (from the jsonl file).
     :param readme_path: Path to the README.md file.
     """
@@ -26,11 +28,41 @@ def update_readme_with_table(papers, readme_path="README.md"):
         link = paper.get('link', '#')
         table_rows += f"| [{title}]({link}) |\n"
     
-    # Update README.md file
-    with open(readme_path, 'a') as readme_file:
-        readme_file.write("\n## Papers\n\n")
-        readme_file.write(table_header)
-        readme_file.write(table_rows)
+    # Read the existing content of the README.md file
+    if os.path.exists(readme_path):
+        with open(readme_path, 'r') as readme_file:
+            lines = readme_file.readlines()
+        
+        # Find the start and end of the ## Papers section
+        new_lines = []
+        in_papers_section = False
+        for line in lines:
+            if line.startswith("## Papers"):
+                in_papers_section = True
+                # new_lines.append(line)  # Keep the header
+                continue  # Skip the previous content
+            
+            if in_papers_section and line.strip() == "":
+                continue  # Skip empty lines under the Papers section
+            
+            if in_papers_section and not line.startswith("|"):
+                in_papers_section = False  # Exit the papers section on non-table lines
+            
+            if not in_papers_section:
+                new_lines.append(line)
+
+        # Write the updated README.md file with the new papers section
+        with open(readme_path, 'w') as readme_file:
+            readme_file.writelines(new_lines)
+            readme_file.write("## Papers\n\n")
+            readme_file.write(table_header)
+            readme_file.write(table_rows)
+    else:
+        # If README.md does not exist, create it and write the content
+        with open(readme_path, 'w') as readme_file:
+            readme_file.write("\n## Papers\n\n")
+            readme_file.write(table_header)
+            readme_file.write(table_rows)
 
 if __name__ == "__main__":
     # Path to your .jsonl file
