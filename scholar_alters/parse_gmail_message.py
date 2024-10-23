@@ -35,6 +35,8 @@ class Paper:
     """
     def __init__(self, ref):
         self.title = ''
+        self.first_labels = []
+        self.second_labels = []
         self.data = ''
         self.link = ''
         self.idx = ''
@@ -47,6 +49,30 @@ class Paper:
                f"Link: {self.link}\n" \
                f"References: {', '.join(self.ref)}\n" \
                f"Chosen: {'Yes' if self.chosen else 'No'}"
+               
+    def add_label(self, label):
+        """
+        Adds the label of the paper after processing.
+        """
+        if label in FIRST_LEVEL_KEYWORDS and label not in self.first_labels:
+            self.first_labels.append(label)
+        
+        if label in SECOND_LEVEL_KEYWORDS  and label not in self.second_labels:
+            self.second_labels.append(label)
+               
+    def _generate_label(self):
+        title = self.title
+            # Check first-level keywords
+        for first_label, patterns in FIRST_LEVEL_KEYWORDS.items():
+            for pattern in patterns:
+                if pattern in title:
+                    self.add_label(first_label)
+        
+        # Check second-level keywords
+        for second_label, patterns in SECOND_LEVEL_KEYWORDS.items():
+            for pattern in patterns:
+                if pattern in title:
+                    self.add_label(second_label)
     
     def add_title(self, data):
         """
@@ -54,6 +80,7 @@ class Paper:
         """
         self.title += clean_title(data) + " "
         self.idx = self.title.strip().upper()
+        self._generate_label()
         
     def add_data(self, data):
         """
@@ -73,6 +100,8 @@ class Paper:
         """
         return {
             "title": self.title.strip(),
+            "first_label": self.first_labels,
+            "second_label": self.second_labels,
             "data": self.data.strip(),
             "link": self.link,
             "ref": self.ref,
