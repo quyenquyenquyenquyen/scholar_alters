@@ -19,14 +19,23 @@ def update_readme_with_table(papers, readme_path="README.md"):
     :param papers: List of paper objects (from the jsonl file).
     :param readme_path: Path to the README.md file.
     """
-    table_header = "| Papers |\n| --- |\n"
+    table_header = "| First Labels | Second Labels | Papers |\n| --- | --- | --- |\n"
     table_rows = ""
     
     for paper in papers:
+        print(json.dumps(paper, indent=4))
         title = paper.get('title', 'No Title')
         title = bytes(title, "utf-8").decode("unicode_escape").encode("latin1").decode("utf-8")
         link = paper.get('link', '#')
-        table_rows += f"| [{title}]({link}) |\n"
+        
+        first_labels = paper.get('first_label', [])
+        second_labels = paper.get('second_label', [])
+        
+        # Join labels as comma-separated strings
+        first_labels_str = ', '.join(first_labels) if first_labels else ""
+        second_labels_str = ', '.join(second_labels) if second_labels else ""
+        
+        table_rows += f"| {first_labels_str} | {second_labels_str} | [{title}]({link}) |\n"
     
     # Read the existing content of the README.md file
     if os.path.exists(readme_path):
@@ -39,7 +48,6 @@ def update_readme_with_table(papers, readme_path="README.md"):
         for line in lines:
             if line.startswith("## Papers"):
                 in_papers_section = True
-                # new_lines.append(line)  # Keep the header
                 continue  # Skip the previous content
             
             if in_papers_section and line.strip() == "":
