@@ -17,6 +17,7 @@ SOFTWARE_VERIFY_PATTERN = [
 ]
 SMART_CONTRACTS_PATTERN = [
     "Smart Contracts",
+    "Smart Contract",
 ]
 UNIT_TEST_PATTERN = [
     "Unit Test"
