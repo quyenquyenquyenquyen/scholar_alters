@@ -19,7 +19,7 @@ def update_readme_with_table(papers, readme_path="README.md"):
     :param papers: List of paper objects (from the jsonl file).
     :param readme_path: Path to the README.md file.
     """
-    table_header = "| First Labels | Second Labels | Papers |\n| --- | --- | --- |\n"
+    table_header = "| Topic | Branch | Papers |\n| --- | --- | --- |\n"
     table_rows = ""
     
     for paper in papers:
