@@ -41,15 +41,19 @@ FUZZING_PATTERN = [
 CODE_REVIEW_PATTERN = [
     "Code Review",
 ]
+CI_PATTERN = [
+    "Continuous Integration"
+]
 FIRST_LEVEL_KEYWORDS = {
-    "Software Vulnerabilities": SOFTWARE_VUL_PATTERN,
-    "Software Verification": SOFTWARE_VERIFY_PATTERN,
+    "Vulnerabilities": SOFTWARE_VUL_PATTERN,
+    "Verification": SOFTWARE_VERIFY_PATTERN,
     "Smart Contracts": SMART_CONTRACTS_PATTERN,
     "Unit Test": UNIT_TEST_PATTERN,
     "Automated Program Repair": APR_PATTERN,
     "Language Language Models": LLMS_PATTERN,
     "Fuzzing": FUZZING_PATTERN,
     "Code Review": CODE_REVIEW_PATTERN,
+    "Continuous Integration": CI_PATTERN,
 }
 
 DETECTION_PATTERN = [
@@ -57,6 +61,7 @@ DETECTION_PATTERN = [
     "Identifying",
     "Detecting",
     "Catching",
+    "Detection",
 ]
 REPAIR_PATTERN = [
     "Repair",
