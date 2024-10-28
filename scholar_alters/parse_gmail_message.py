@@ -61,17 +61,17 @@ class Paper:
             self.second_labels.append(label)
                
     def _generate_label(self):
-        title = self.title
+        title = self.title.lower()
             # Check first-level keywords
         for first_label, patterns in FIRST_LEVEL_KEYWORDS.items():
             for pattern in patterns:
-                if pattern in title:
+                if pattern.lower() in title:
                     self.add_label(first_label)
         
         # Check second-level keywords
         for second_label, patterns in SECOND_LEVEL_KEYWORDS.items():
             for pattern in patterns:
-                if pattern in title:
+                if pattern.lower() in title:
                     self.add_label(second_label)
     
     def add_title(self, data):
