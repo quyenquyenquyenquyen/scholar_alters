@@ -45,6 +45,15 @@ CODE_REVIEW_PATTERN = [
 CI_PATTERN = [
     "Continuous Integration"
 ]
+FL_PATTERN = [
+    "Fault Localization"
+]
+CODE_PATTERN = [
+    "Code"
+]
+BUG_PATTERN = [
+    "Bug"
+]
 FIRST_LEVEL_KEYWORDS = {
     "Vulnerabilities": SOFTWARE_VUL_PATTERN,
     "Verification": SOFTWARE_VERIFY_PATTERN,
@@ -55,6 +64,9 @@ FIRST_LEVEL_KEYWORDS = {
     "Fuzzing": FUZZING_PATTERN,
     "Code Review": CODE_REVIEW_PATTERN,
     "Continuous Integration": CI_PATTERN,
+    "Fault Localization": FL_PATTERN,
+    "Code": CODE_PATTERN,
+    "Bug": BUG_PATTERN,
 }
 
 DETECTION_PATTERN = [
