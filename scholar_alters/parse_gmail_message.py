@@ -41,14 +41,12 @@ class Paper:
         self.link = ''
         self.idx = ''
         self.ref = [ref]  # Email subjects (reference) where the paper was found
-        self.chosen = 0  # By default, not chosen (as there’s no interactive part anymore)
         
     def __str__(self):
         return f"Title: {self.title}\n" \
                f"Data: {self.data}\n" \
                f"Link: {self.link}\n" \
-               f"References: {', '.join(self.ref)}\n" \
-               f"Chosen: {'Yes' if self.chosen else 'No'}"
+               f"References: {', '.join(self.ref)}\n"
                
     def add_label(self, label):
         """
@@ -104,8 +102,7 @@ class Paper:
             "second_label": self.second_labels,
             "data": self.data.strip(),
             "link": self.link,
-            "ref": self.ref,
-            "chosen": self.chosen
+            "ref": self.ref
         }
 
 class PapersHTMLParser(HTMLParser):
