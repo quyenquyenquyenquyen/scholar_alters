@@ -54,6 +54,16 @@ CODE_PATTERN = [
 BUG_PATTERN = [
     "Bug"
 ]
+COMMIT_MESSAGE_PATTERN = [
+    "Commit Message",
+    "Commit Messages",
+]
+CODE_CHANGE_PATTERN = [
+    "Code Change",
+    "Code Changes",
+    "Code Diff",
+    "Commit Diff",
+]
 FIRST_LEVEL_KEYWORDS = {
     "Vulnerabilities": SOFTWARE_VUL_PATTERN,
     "Verification": SOFTWARE_VERIFY_PATTERN,
@@ -67,6 +77,8 @@ FIRST_LEVEL_KEYWORDS = {
     "Fault Localization": FL_PATTERN,
     "Code": CODE_PATTERN,
     "Bug": BUG_PATTERN,
+    "Commit Message": COMMIT_MESSAGE_PATTERN,
+    "Code Change": CODE_CHANGE_PATTERN,
 }
 
 DETECTION_PATTERN = [
