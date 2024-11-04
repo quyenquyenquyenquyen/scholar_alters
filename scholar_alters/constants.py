@@ -51,6 +51,9 @@ FL_PATTERN = [
 CODE_PATTERN = [
     "Code"
 ]
+DEFECT_PATTERN = [
+    "Defect"
+]
 BUG_PATTERN = [
     "Bug"
 ]
@@ -70,7 +73,7 @@ FIRST_LEVEL_KEYWORDS = {
     "Smart Contracts": SMART_CONTRACTS_PATTERN,
     "Unit Test": UNIT_TEST_PATTERN,
     "Automated Program Repair": APR_PATTERN,
-    "Language Language Models": LLMS_PATTERN,
+    "Large Language Models": LLMS_PATTERN,
     "Fuzzing": FUZZING_PATTERN,
     "Code Review": CODE_REVIEW_PATTERN,
     "Continuous Integration": CI_PATTERN,
