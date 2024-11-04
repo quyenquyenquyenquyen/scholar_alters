@@ -30,8 +30,8 @@ APR_PATTERN = [
 LLMS_PATTERN = [
     "LLMs",
     "LLM",
-    "Language Language Models",
-    "Language Language Model",
+    "Large Language Models",
+    "Large Language Model",
     "ChatGPT",
     "GPT"
 ]
