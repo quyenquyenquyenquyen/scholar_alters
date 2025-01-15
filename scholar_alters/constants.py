@@ -104,9 +104,14 @@ AGENT_PATTERN = [
     "Agent",
     "Agents",
 ]
+EXPLOIT_PATTERN = [
+    "Exploit",
+    "Exploits",
+]
 SECOND_LEVEL_KEYWORDS = {
     "Detection": DETECTION_PATTERN,
     "Repair": REPAIR_PATTERN,
     "Generation": GENERATION_PATTERN,
     "Agent": AGENT_PATTERN,
+    "Exploit": EXPLOIT_PATTERN,
 }
