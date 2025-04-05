@@ -3,6 +3,8 @@ import json
 from html.parser import HTMLParser
 from os import path as ospath, makedirs
 import logging
+from datetime import datetime, timedelta
+import shutil
 from .constants import *  # Contains constants like DATA_FOLDER, PAPERS_LABEL, etc.
 from .connect_to_gmail import *  # Contains Gmail API functions
 
@@ -255,8 +257,16 @@ if __name__ == '__main__':
             "processed": True
         })
 
-    # Export papers to JSONL file
+    # Check if papers.jsonl exists
     papers_jsonl_path = ospath.join(DATA_FOLDER, 'papers.jsonl')
+    if ospath.exists(papers_jsonl_path):
+        # Create a backup with yesterday's date
+        yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        backup_path = ospath.join(DATA_FOLDER, f'{yesterday_date}.jsonl')
+        shutil.copy(papers_jsonl_path, backup_path)
+        logging.info(f"Backup created: {backup_path}")
+
+    # Export papers to JSONL file
     with open(papers_jsonl_path, 'w', encoding='utf-8') as jsonl_file:
         for paper in pa.paper_list:
             json.dump(paper.to_dict(), jsonl_file)
