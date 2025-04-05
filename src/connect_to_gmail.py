@@ -36,7 +36,7 @@ def get_service(data_folder='.'):
 
     # Load credentials from token.json if available
     if os.path.exists(token_filename):
-        creds = Credentials.from_authorized_user_file(token_filename, SCOPES)
+        creds = Credentials.from_authorized_user_file(token_filename, SCOPES)   
 
     # Refresh or request new credentials if necessary
     if not creds or not creds.valid:

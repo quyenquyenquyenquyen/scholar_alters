@@ -1,8 +1,7 @@
 DATA_FOLDER = "./data"
 SCOPES = [
     'https://mail.google.com/',
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.modify',
+    'https://www.googleapis.com/auth/gmail.readonly'
 ]
 CLIENTSECRETS_LOCATION = "./credentials.json"
 

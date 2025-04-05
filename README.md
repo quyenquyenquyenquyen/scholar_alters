@@ -1,67 +1,67 @@
 # Scholar Alters
-Parse unread emails from Google Scholar alerts and update README.md
+Parse unread emails from Google Scholar alerts and update README.md.
 
-## Setting for first use
-You should need to use [Gmail API Client Library](https://developers.google.com/gmail/api/quickstart/python) and create
-credentials.json as explained in the link.
+## Setting for First Use
+1. Use the [Gmail API Client Library](https://developers.google.com/gmail/api/quickstart/python) and create a `credentials.json` file as explained in the link.
+
+    Example structure:
+    ```
+    .
+    ├── credentials.json
+    ```
+
+    Example `credentials.json`:
+    ```json
+    {
+         "installed": {
+              "client_id": "YOUR_CLIENT_ID",
+              "project_id": "YOUR_PROJECT_ID",
+              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+              "token_uri": "https://oauth2.googleapis.com/token",
+              "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+              "client_secret": "YOUR_CLIENT_SECRET",
+              "redirect_uris": [
+                    "http://localhost"
+              ]
+         }
+    }
+    ```
+
+2. Run `script.sh`:
+    ```
+    bash script.sh
+    ```
+    For the first run, you will need to log in to your Google account. Ensure that your Gmail account is added as a test user for your app. Refer to this [Stack Overflow post](https://stackoverflow.com/questions/75454425/access-blocked-project-has-not-completed-the-google-verification-process) for guidance.
+
+    This will create a `./data/token.json` file.
+
+3. Copy the information from `token.json` into a GitHub Action secret variable named `TOKEN_CONFIG_JSON`.
+
+    Example `token.json`:
+    ```json
+    {
+         "token": "YOUR_ACCESS_TOKEN",
+         "refresh_token": "YOUR_REFRESH_TOKEN",
+         "token_uri": "https://oauth2.googleapis.com/token",
+         "client_id": "YOUR_CLIENT_ID",
+         "client_secret": "YOUR_CLIENT_SECRET",
+         "scopes": [
+              "https://mail.google.com/",
+              "https://www.googleapis.com/auth/gmail.readonly"
+         ],
+         "universe_domain": "googleapis.com",
+         "account": "",
+         "expiry": "YOUR_EXPIRY_DATE"
+    }
+    ```
 
 ## Run
-Run from your CLI:
+Run the following command from your CLI:
 ```
 bash script.sh
 ```
+
 ## Papers
 
 | Topic | Branch | Papers |
 | --- | --- | --- |
-| Large Language Models, Bug |  | [Mutation Testing via Iterative Large Language Model-Driven Scientific Debugging](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.08182&hl=vi&sa=X&d=2332004138139485912&ei=GdHfZ4_9J6OD6rQPx5mGgAY&scisig=AFWwaeYcNR65MJHLfE5YUPXL-MLn&oi=scholaralrt&hist=apJ4fD8AAAAJ:11355862984917483435:AFWwaeZvT_NNWQMu4_zZrEW644gW&html=&pos=0&folt=rel) |
-| Fuzzing |  | [ICSQuartz: Scan Cycle-Aware and Vendor-Agnostic Fuzzing for Industrial Control Systems](https://scholar.google.com/scholar_url?url=https://www.ndss-symposium.org/wp-content/uploads/2025-795-paper.pdf&hl=en&sa=X&d=10524862650214833634&ei=GdHfZ8XOJpm7ieoP6cWmgQE&scisig=AFWwaeZZ_2ARI6V22CenXEygxr-a&oi=scholaralrt&hist=apJ4fD8AAAAJ:11137134570824175991:AFWwaeZJgvZkFmSwNlRigHvrI7d8&html=&pos=0&folt=rel) |
-| Vulnerabilities, Fuzzing | Detection | [Exploring Depths of WebAudio: Advancing Greybox Fuzzing for Vulnerability Detection in Safari](https://scholar.google.com/scholar_url?url=https://users.cs.northwestern.edu/~ychen/Papers/WebAudio_APSEC.pdf&hl=en&sa=X&d=14421413917870641412&ei=GdHfZ8XOJpm7ieoP6cWmgQE&scisig=AFWwaeaAZBPJhY_hEZJJoC6kkjo6&oi=scholaralrt&hist=apJ4fD8AAAAJ:11137134570824175991:AFWwaeZJgvZkFmSwNlRigHvrI7d8&html=&pos=1&folt=rel) |
-| Fuzzing |  | [SwFuzz: Structure-Sensitive WebAssembly Fuzzing](https://scholar.google.com/scholar_url?url=https://users.cs.northwestern.edu/~ychen/Papers/SWFuzz_ASIA.pdf&hl=en&sa=X&d=3575353584380034570&ei=GdHfZ8XOJpm7ieoP6cWmgQE&scisig=AFWwaeZNlmOmuNwoN0uMt4pWuU0v&oi=scholaralrt&hist=apJ4fD8AAAAJ:11137134570824175991:AFWwaeZJgvZkFmSwNlRigHvrI7d8&html=&pos=2&folt=rel) |
-|  |  | [Автоматизація перегляду програмного коду на основі методів машинного навчання](https://scholar.google.com/scholar_url?url=https://actualproblems.dp.ua/index.php/APAIT/article/download/257/228&hl=vi&sa=X&d=12677006549824059636&ei=GdHfZ_SpLJuw6rQP15iV4Qw&scisig=AFWwaeaRXynIpsQMExLxpZdGpYDN&oi=scholaralrt&hist=apJ4fD8AAAAJ:11724652424841979500:AFWwaeb06hHZ-3j7Bb1sOMTsP9ed&html=&pos=0&folt=cit) |
-| Automated Program Repair, Bug | Repair | [Bugfix: a standard language, database schema and repository for research on bugs and automatic program repair](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.15599&hl=en&sa=X&d=10642094292575353027&ei=GdHfZ7--M8uZieoPiNWegAU&scisig=AFWwaebYZkmLIso9Pt-1zoBNSzF7&oi=scholaralrt&hist=apJ4fD8AAAAJ:16488056128958629805:AFWwaeZVy5biUXZBZUZeh3-Oz0_I&html=&pos=0&folt=rel) |
-| Continuous Integration |  | [Automated deployment and rollback strategies for docker containers in continuous integration/continuous deployment (CI/CD) pipelines](https://scholar.google.com/scholar_url?url=https://www.researchgate.net/profile/Anila_Gogineni/publication/389788384_Automated_deployment_and_rollback_strategies_for_docker_containers_in_continuous_integrationcontinuous_deployment_CICD_pipelines/links/67d265a4e62c604a0dd75e36/Automated-deployment-and-rollback-strategies-for-docker-containers-in-continuous-integration-continuous-deployment-CI-CD-pipelines.pdf&hl=en&sa=X&d=4552676981410064249&ei=GdHfZ8O1L9SyieoPwLeW8AY&scisig=AFWwaeZz8_vtDevpu7lVQrcZeGZo&oi=scholaralrt&hist=apJ4fD8AAAAJ:15725322226479601129:AFWwaeYp-8wbw5OHTjoCHLP43E0V&html=&pos=0&folt=rel) |
-| Fault Localization |  | [Simple Fault Localization using Execution Traces](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.04301&hl=en&sa=X&d=2093297660534139222&ei=GdHfZ-jnKoWlieoP9b6EiA0&scisig=AFWwaebKjdYjJYByY7wZO158t1Ec&oi=scholaralrt&hist=apJ4fD8AAAAJ:11631047573362457156:AFWwaeYhbBKL65h4pzyKCNru3s-R&html=&pos=0&folt=rel) |
-| Large Language Models, Code | Agent | [Code2JSON: Can a Zero-Shot LLM Agent Extract Code Features for Code RAG?](https://scholar.google.com/scholar_url?url=https://openreview.net/pdf%3Fid%3DglBWrVLvKi&hl=en&sa=X&d=11144165502460504562&ei=GdHfZ-jnKoWlieoP9b6EiA0&scisig=AFWwaeY8HJiVRFGiPbA1RbV7KmJo&oi=scholaralrt&hist=apJ4fD8AAAAJ:11631047573362457156:AFWwaeYhbBKL65h4pzyKCNru3s-R&html=&pos=1&folt=rel) |
-| Code |  | [Investigating Execution-Aware Language Models for Code Optimization](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.08228&hl=en&sa=X&d=11464541261744981902&ei=GdHfZ-jnKoWlieoP9b6EiA0&scisig=AFWwaeZOrw28MJs1HKINGUJCROdQ&oi=scholaralrt&hist=apJ4fD8AAAAJ:11631047573362457156:AFWwaeYhbBKL65h4pzyKCNru3s-R&html=&pos=3&folt=rel) |
-| Large Language Models, Code | Generation | [CodeSwift: Accelerating LLM Inference for Efficient Code Generation](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.17139&hl=en&sa=X&d=12309021167084800557&ei=GdHfZ-jnKoWlieoP9b6EiA0&scisig=AFWwaebM1YnN4NurSD2BsoIiHS26&oi=scholaralrt&hist=apJ4fD8AAAAJ:11631047573362457156:AFWwaeYhbBKL65h4pzyKCNru3s-R&html=&pos=4&folt=rel) |
-| Fault Localization |  | [Improving Graph Learning-Based Fault Localization with Tailored Semi-supervised Learning](https://scholar.google.com/scholar_url?url=https://pppppkun.github.io/files/fse25.pdf&hl=en&sa=X&d=3684507761350432065&ei=GdHfZ-jnKoWlieoP9b6EiA0&scisig=AFWwaeaCU1iGZOL3wdyrA6_vPx0l&oi=scholaralrt&hist=apJ4fD8AAAAJ:11631047573362457156:AFWwaeYhbBKL65h4pzyKCNru3s-R&html=&pos=5&folt=rel) |
-| Large Language Models |  | [LLM Compiler: Foundation Language Models for Compiler Optimization](https://scholar.google.com/scholar_url?url=https://dl.acm.org/doi/pdf/10.1145/3708493.3712691&hl=en&sa=X&d=15248179687375146706&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeaQLmVGmhuYPirTSRdIm2C5&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=0&folt=rel) |
-|  |  | [Lightweight Concolic Testing via Path-Condition Synthesis for Deep Learning Libraries](https://scholar.google.com/scholar_url?url=https://www.jooyongyi.com/papers/ICSE25.pdf&hl=en&sa=X&d=10264194252454271239&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeY1z_V3GkFVvQ4yKrS6-u2H&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=1&folt=rel) |
-| Vulnerabilities, Large Language Models | Detection | [Guessing as a service: large language models are not yet ready for vulnerability detection](https://scholar.google.com/scholar_url?url=https://re.public.polimi.it/bitstream/11311/1284205/1/_ITASEC__Survey_LLMs_for_Vulnerability_Detection.pdf&hl=en&sa=X&d=9488022294044051922&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeZfyMM1sIcP_FxrcS4WQQmp&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=2&folt=rel) |
-| Large Language Models, Code | Generation | [SolEval: Benchmarking Large Language Models for Repository-level Solidity Code Generation](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.18793&hl=en&sa=X&d=18108558928985012184&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeYB8M09Myp3zooUoYE61pwf&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=3&folt=rel) |
-| Large Language Models, Code |  | [Large language models are qualified benchmark builders: Rebuilding pre-training datasets for advancing code intelligence tasks](https://scholar.google.com/scholar_url?url=https://shangwenwang.github.io/files/ICPC-25.pdf&hl=en&sa=X&d=14609002688787455145&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeYDGpCyYS_ZxRBozcu-uBSN&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=4&folt=rel) |
-| Fault Localization |  | [Evaluating Spectrum-based Fault Localization on Deep Learning Libraries](https://scholar.google.com/scholar_url?url=https://ieeexplore.ieee.org/abstract/document/10930847/&hl=en&sa=X&d=13097586511829065482&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeZIPeEWx0xchtsAVxGkT88r&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=6&folt=rel) |
-| Vulnerabilities, Large Language Models | Detection | [From Large to Mammoth: A Comparative Evaluation of Large Language Models in Vulnerability Detection](https://scholar.google.com/scholar_url?url=https://www.ndss-symposium.org/wp-content/uploads/2025-1491-paper.pdf&hl=en&sa=X&d=4792361613594223308&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeY2mHkuZqyAPpG8grIXpgws&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=7&folt=rel) |
-|  |  | [Multimodal Learning for Just-In-Time Software Defect Prediction in Autonomous Driving Systems](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.20806&hl=en&sa=X&d=3195013519886661176&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaebzwIiPbIJ5E8l5WxPgCa_3&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=8&folt=rel) |
-| Vulnerabilities, Fuzzing | Detection | [Effective Directed Fuzzing with Hierarchical Scheduling for Web Vulnerability Detection](https://scholar.google.com/scholar_url?url=https://yuanxzhang.github.io/paper/WDFuzz-security25.pdf&hl=en&sa=X&d=3557548300279399061&ei=GdHfZ4uuI4-j6rQP4qbHWQ&scisig=AFWwaeaLhhLY4fHR10500ee-UQZz&oi=scholaralrt&hist=apJ4fD8AAAAJ:8900472388513427833:AFWwaeZM7Y6I9R2ROVLnk31jdyVz&html=&pos=9&folt=rel) |
-| Large Language Models |  | [Formal Trust and Threat Modeling Using Large Language Models](https://scholar.google.com/scholar_url?url=https://ieeexplore.ieee.org/abstract/document/10917671/&hl=en&sa=X&d=14688613334751679992&ei=GdHfZ6inIMuZieoPiNWegAU&scisig=AFWwaebJTuwp1PUJ0uMqejB-WC9U&oi=scholaralrt&hist=apJ4fD8AAAAJ:5778505219825515303:AFWwaeaDDOggOneW-z6K3HLjAzuP&html=&pos=0&folt=cit) |
-| Large Language Models |  | [Enhancing Database Encryption: Adaptive Measures for Digital Assets Against LLMs-Based Reverse Engineering](https://scholar.google.com/scholar_url?url=https://ieeexplore.ieee.org/abstract/document/10917597/&hl=en&sa=X&d=8313330257232076788&ei=GdHfZ6inIMuZieoPiNWegAU&scisig=AFWwaeYGGp0SXbx-uAcR1l8iSft0&oi=scholaralrt&hist=apJ4fD8AAAAJ:5778505219825515303:AFWwaeaDDOggOneW-z6K3HLjAzuP&html=&pos=1&folt=cit) |
-|  |  | [ER-𝜋: Exhaustive Interleaving Replay for Testing Replicated Data Library Integration](https://scholar.google.com/scholar_url?url=https://www.researchgate.net/profile/Provakar-Mondal-2/publication/389986985_ER-_Exhaustive_Interleaving_Replay_for_Testing_Replicated_Data_Library_Integration/links/67db3450fe0f5a760f47670c/ER-Exhaustive-Interleaving-Replay-for-Testing-Replicated-Data-Library-Integration.pdf&hl=en&sa=X&d=4169933903028988829&ei=GdHfZ6inIMuZieoPiNWegAU&scisig=AFWwaeYIGYrHrPRTcoGWctyrEh6a&oi=scholaralrt&hist=apJ4fD8AAAAJ:5778505219825515303:AFWwaeaDDOggOneW-z6K3HLjAzuP&html=&pos=2&folt=cit) |
-|  |  | [Finding Metadata Inconsistencies in Distributed File Systems via Cross-Node Operation Modeling](https://scholar.google.com/scholar_url?url=http://wingtecher.com/themes/WingTecherResearch/assets/papers/paper_from_25/Horcrux_Security25.pdf&hl=en&sa=X&d=15948322227967050307&ei=GdHfZ6inIMuZieoPiNWegAU&scisig=AFWwaebSiNAiWjG_rsjt1kmAH_mY&oi=scholaralrt&hist=apJ4fD8AAAAJ:5778505219825515303:AFWwaeaDDOggOneW-z6K3HLjAzuP&html=&pos=3&folt=cit) |
-| Vulnerabilities, Large Language Models | Detection | [GPT-Based Automated Induction: Vulnerability Detection in Medical Software](https://scholar.google.com/scholar_url?url=https://ieeexplore.ieee.org/abstract/document/10899829/&hl=en&sa=X&d=4257828238536637457&ei=GdHfZ5XkIZuoieoPy6GmoQM&scisig=AFWwaebLUMgz30_kE6q-kcisdZTu&oi=scholaralrt&hist=apJ4fD8AAAAJ:6234092987365270793:AFWwaeZHIN6aK_iU38VPuuMoYcVu&html=&pos=0&folt=rel) |
-|  |  | [Hardware-optimal quantum algorithms](https://scholar.google.com/scholar_url?url=https://www.pnas.org/doi/full/10.1073/pnas.2419273122&hl=vi&sa=X&d=2323115351370292722&ei=GdHfZ6nuLcCSieoPqLGJyAM&scisig=AFWwaeaM_ffTytvrZ1-Or3w-T4Yw&oi=scholaralrt&hist=apJ4fD8AAAAJ:13534924455939102554:AFWwaeZN-y-gtbFtywJ0Xio3nYxl&html=&pos=0&folt=cit) |
-|  |  | [Phi-4-Mini Technical Report: Compact yet Powerful Multimodal Language Models via Mixture-of-LoRAs](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.01743%3F&hl=en&sa=X&d=1080021729655208449&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeZMnVxRBi2ctuK9FSJVQwyR&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=0&folt=rel) |
-|  |  | [From Head to Tail: Towards Balanced Representation in Large Vision-Language Models through Adaptive Data Calibration](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.12821&hl=en&sa=X&d=11737421450003055590&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeYpswc1NGxvjtITVBeAhDpK&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=1&folt=rel) |
-|  |  | [Capturing nuanced preferences: Preference-aligned distillation for small language models](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.14272&hl=en&sa=X&d=3283888565285721117&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeacCk5hYRYI-fAwtLN-1pFN&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=2&folt=rel) |
-|  |  | [Self-Steering Language Models](https://scholar.google.com/scholar_url?url=https://openreview.net/pdf%3Fid%3Dx7E2Qt7n0V&hl=en&sa=X&d=17836731747212682693&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeYnQPOEYSmZZ5fMjuMV3S05&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=3&folt=rel) |
-| Large Language Models |  | [Safety is Not Only About Refusal: Reasoning-Enhanced Fine-tuning for Interpretable LLM Safety](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.05021&hl=en&sa=X&d=5785695892417368823&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaea2MHnS_d1ERRbZdJf_zDWG&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=4&folt=rel) |
-| Large Language Models |  | [ALinFiK: Learning to Approximate Linearized Future Influence Kernel for Scalable Third-Parity LLM Data Valuation](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.01052&hl=en&sa=X&d=6331837210289932637&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaea2pohDgJbloKIzQaluufUF&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=5&folt=rel) |
-|  |  | [Medvlm-r1: Incentivizing medical reasoning capability of vision-language models (vlms) via reinforcement learning](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.19634&hl=en&sa=X&d=14122414530465825183&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeYKq3XbiJsqab5sdaqJdckd&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=6&folt=rel) |
-|  |  | [FR-Spec: Accelerating Large-Vocabulary Language Models via Frequency-Ranked Speculative Sampling](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.14856&hl=en&sa=X&d=4250945624494244927&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeYRHIy0HLbCZ0oP5bnAdlsn&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=7&folt=rel) |
-|  |  | [Multidimensional Consistency Improves Reasoning in Language Models](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.02670&hl=en&sa=X&d=7890321214859696030&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaeai4iV6zDshaHZI2bm-_u3J&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=8&folt=rel) |
-|  |  | [Language Models can Self-Improve at State-Value Estimation for Better Search](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.02878&hl=en&sa=X&d=7437309647568686441&ei=GdHfZ6H0GtSyieoPwLeW8AY&scisig=AFWwaebBVWmcASunkZ1dbvnH9jCb&oi=scholaralrt&hist=apJ4fD8AAAAJ:3096313017463695374:AFWwaeb8R4GEV1B4xk_Cz2b6H7gj&html=&pos=9&folt=rel) |
-| Vulnerabilities, Fuzzing | Exploit | [CHAINFUZZ: Exploiting Upstream Vulnerabilities in Open-Source Supply Chains](https://scholar.google.com/scholar_url?url=https://yuanxzhang.github.io/paper/chainfuzz-security25.pdf&hl=en&sa=X&d=1123822055454567742&ei=GdHfZ7KCJcmpieoPrOWNiQo&scisig=AFWwaeYYt1pzDFX5xglv8ko1phUl&oi=scholaralrt&hist=apJ4fD8AAAAJ:10695555881282652625:AFWwaeakbu5Ta3HmdjfVean1AXL4&html=&pos=0&folt=cit) |
-|  |  | [HCAST: Human-Calibrated Autonomy Software Tasks](https://scholar.google.com/scholar_url?url=https://metr.org/hcast.pdf&hl=en&sa=X&d=11373862575171555582&ei=GdHfZ9yQMtmlieoPu-rnmA4&scisig=AFWwaebj9NOv1mCCTcQYzOyjwh4s&oi=scholaralrt&hist=apJ4fD8AAAAJ:16237994392044955269:AFWwaebaLgrVcMkfKx1Gjt1mqPQn&html=&pos=0&folt=cit) |
-|  |  | [Neurosymbolic Program Synthesis](https://scholar.google.com/scholar_url?url=https://ebooks.iospress.nl/volumearticle/72308&hl=vi&sa=X&d=260497855773459396&ei=GdHfZ8TlMPCj6rQP3ebg8QI&scisig=AFWwaeYnF_PmWIIOWHmepZZkoEVq&oi=scholaralrt&hist=apJ4fD8AAAAJ:16065687014273664109:AFWwaeYpvD7V4gPm0ywHhNT6YvSk&html=&pos=0&folt=rel) |
-| Large Language Models |  | [ELBA-Bench: An Efficient Learning Backdoor Attacks Benchmark for Large Language Models](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.18511&hl=en&sa=X&d=2326898847250844616&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeYsxLaPZ35g7ZwCcXLowDSz&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=0&folt=rel) |
-|  |  | [PersGuard: Preventing Malicious Personalization via Backdoor Attacks on Pre-trained Text-to-Image Diffusion Models](https://scholar.google.com/scholar_url?url=https://arxiv.org/abs/2502.16167&hl=en&sa=X&d=4329161943110226749&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeafrJsvZfvDQ-TQGz6g7XVq&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=1&folt=rel) |
-| Large Language Models |  | [EAGER-LLM: Enhancing Large Language Models as Recommenders through Exogenous Behavior-Semantic Integration](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.14735&hl=en&sa=X&d=426769658566315280&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeYh4wl6YqJyh-StysItru7m&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=2&folt=rel) |
-| Large Language Models |  | [ECCOS: Efficient Capability and Cost Coordinated Scheduling for Multi-LLM Serving](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.20576&hl=en&sa=X&d=6964741309843660616&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeY5lGWkGMncsxfNykK6Rig1&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=3&folt=rel) |
-| Large Language Models | Agent | [Steca: Step-level trajectory calibration for llm agent learning](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.14276&hl=en&sa=X&d=2705428630298436&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeajtxhd1DlqlX1x2usJD25c&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=4&folt=rel) |
-|  | Detection | [Test-Time Backdoor Detection for Object Detection Models](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.15293&hl=en&sa=X&d=6052108469819470987&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeaFXqT9l6pRpWrFFtCi-fSJ&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=5&folt=rel) |
-| Large Language Models | Generation | [Llm as a broken telephone: Iterative generation distorts information](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.20258%3F&hl=en&sa=X&d=14349451129841775652&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeYpPtaHLlzSyniRMSHyq27c&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=6&folt=rel) |
-| Large Language Models |  | [LLM as GNN: Graph Vocabulary Learning for Text-Attributed Graph Foundation Models](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.03313&hl=en&sa=X&d=3379316778714972074&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeYnEzzKb30nPQSDWnq341vD&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=7&folt=rel) |
-| Large Language Models |  | [Serving models, fast and slow: optimizing heterogeneous LLM inferencing workloads at scale](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2502.14617&hl=en&sa=X&d=6366170882212700007&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeZDqEMNNzq5TdboiBFtoaTr&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=8&folt=rel) |
-| Large Language Models |  | [Cats Confuse Reasoning LLM: Query Agnostic Adversarial Triggers for Reasoning Models](https://scholar.google.com/scholar_url?url=https://arxiv.org/pdf/2503.01781&hl=en&sa=X&d=134661470153268257&ei=GdHfZ4-_HpyV6rQP4Zul2Qo&scisig=AFWwaeb1VHCvSYtOTrXSeH2Vu4Gc&oi=scholaralrt&hist=apJ4fD8AAAAJ:4513401344136555010:AFWwaea8pA4W9ESmXpw9yvMxc7-7&html=&pos=9&folt=rel) |
-| Vulnerabilities | Detection | [AdVul: Adversarial Attack against ML-based Vulnerability Detection](https://scholar.google.com/scholar_url?url=https://ieeexplore.ieee.org/abstract/document/10917677/&hl=en&sa=X&d=14605241791166743568&ei=GdHfZ66uHNmlieoPu-rnmA4&scisig=AFWwaeYqoVC72txG9NyOwT2McVra&oi=scholaralrt&hist=apJ4fD8AAAAJ:4465730527138788254:AFWwaebhnVuF-27TSh32-dm_KGTR&html=&pos=0&folt=cit) |

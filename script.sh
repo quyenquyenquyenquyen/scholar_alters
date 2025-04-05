@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m scholar_alters.parse_gmail_message && python -m scholar_alters.update_readme
+python -m src.parse_gmail_message && python -m src.update_readme
