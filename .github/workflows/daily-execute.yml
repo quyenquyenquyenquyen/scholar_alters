@@ -35,6 +35,9 @@ jobs:
       - name: Execute script
         run: |
           cat data/token.json
+
+      - name: Execute script
+        run: |
           chmod +x script.sh # Make the script executable
           ./script.sh # Run the script
 
