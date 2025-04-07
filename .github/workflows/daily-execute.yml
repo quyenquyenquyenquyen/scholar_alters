@@ -34,7 +34,7 @@ jobs:
 
       - name: Execute script
         run: |
-          cat data/token.json
+          ls data/
 
       - name: Execute script
         run: |
