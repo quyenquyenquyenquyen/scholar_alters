@@ -23,7 +23,7 @@ jobs:
 
       - name: Create JSON for Token
         id: create-json
-        uses: jsdaniell/create-json@1.1.2
+        uses: jsdaniell/create-json@v1.2.3
         with:
           name: "data/token.json"  # Specify the path where the JSON file will be created
           json: ${{ secrets.TOKEN_CONFIG_JSON }}  # Use the secret for the JSON content
