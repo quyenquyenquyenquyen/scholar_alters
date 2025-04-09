@@ -10,6 +10,7 @@ FIRST_LEVEL_KEYWORDS = {
         "Software Vulnerabilities",
         "Vulnerabilities",
         "Vulnerability",
+        "capture-the-flag",
     ],
     "Verification": [
         "Formal Verification",
