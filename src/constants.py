@@ -19,9 +19,6 @@ FIRST_LEVEL_KEYWORDS = {
         "Smart Contracts",
         "Smart Contract",
     ],
-    "Unit Test": [
-        "Unit Test"
-    ],
     "APR": [
         "Automated Program Repair",
         "Program Repair",
@@ -66,7 +63,7 @@ FIRST_LEVEL_KEYWORDS = {
         "Commit Diff",
     ],
     "Software Testing": [
-        "Software Test",
+        "Test",
     ],
     "Ethereum": [
         "Ethereum",
