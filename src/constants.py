@@ -103,4 +103,8 @@ SECOND_LEVEL_KEYWORDS = {
         "Exploit",
         "Exploits",
     ],
+    "Localization": [
+        "Localization",
+        "Localize",
+    ],
 }
