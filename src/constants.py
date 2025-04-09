@@ -107,4 +107,8 @@ SECOND_LEVEL_KEYWORDS = {
         "Localization",
         "Localize",
     ],
+    "Search": [
+        "Search",
+        "Look up",
+    ],
 }
