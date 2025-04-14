@@ -112,4 +112,7 @@ SECOND_LEVEL_KEYWORDS = {
         "Search",
         "Look up",
     ],
+    "Reasoning": [
+        "Reason",
+    ],
 }
