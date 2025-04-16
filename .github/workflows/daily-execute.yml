@@ -25,8 +25,8 @@ jobs:
         id: create-json
         uses: jsdaniell/create-json@v1.2.3
         with:
-          name: "data/token.json"  # Specify the path where the JSON file will be created
-          json: ${{ secrets.TOKEN_CONFIG_JSON }}  # Use the secret for the JSON content
+          name: "./credentials.json"  # Specify the path where the JSON file will be created
+          json: ${{ secrets.CREDS_JSON }}  # Use the secret for the JSON content
 
       - name: Install dependencies for Google API
         run: |
