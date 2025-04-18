@@ -39,7 +39,7 @@ def update_readme_with_table(papers, readme_path="README.md"):
     :param papers: List of paper objects (from the jsonl file).
     :param readme_path: Path to the README.md file.
     """
-    table_header = "| Topic | Branch | Papers |\n| --- | --- | --- |\n"
+    table_header = "| Topic | Branch | Papers | Related to |\n| --- | --- | --- | --- |\n"
     table_rows = ""
     
     for paper in papers:
@@ -54,8 +54,10 @@ def update_readme_with_table(papers, readme_path="README.md"):
         # Join labels as comma-separated strings
         first_labels_str = ', '.join(first_labels) if first_labels else ""
         second_labels_str = ', '.join(second_labels) if second_labels else ""
+
+        authors = ', '.join(paper.get("author", []))
         
-        table_rows += f"| {first_labels_str} | {second_labels_str} | [{title}]({link}) |\n"
+        table_rows += f"| {first_labels_str} | {second_labels_str} | [{title}]({link}) | {authors} |\n"
     
     # Read the existing content of the README.md file
     if os.path.exists(readme_path):

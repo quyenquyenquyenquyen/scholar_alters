@@ -43,14 +43,16 @@ class Paper:
         self.link = ''
         self.idx = ''
         self.ref = [ref]  # Email subjects (reference) where the paper was found
+        self.author = []
         
     def __str__(self):
         return f"Title: {self.title}\n" \
                f"Data: {self.data}\n" \
                f"Link: {self.link}\n" \
+               f"Author: {', '.join(self.author)}\n" \
                f"References: {', '.join(self.ref)}\n"
                
-    def add_label(self, label):
+    def add_label(self, label: str):
         """
         Adds the label of the paper after processing.
         """
@@ -74,7 +76,7 @@ class Paper:
                 if pattern.lower() in title:
                     self.add_label(second_label)
     
-    def add_title(self, data):
+    def add_title(self, data:str):
         """
         Adds the title of the paper after cleaning.
         """
@@ -82,13 +84,13 @@ class Paper:
         self.idx = self.title.strip().upper()
         self._generate_label()
         
-    def add_data(self, data):
+    def add_data(self, data:str):
         """
         Adds metadata or content of the paper.
         """
         self.data += data + "\n"
         
-    def add_ref(self, ref):
+    def add_ref(self, ref: str):
         """
         Adds a reference to the paper.
         """
@@ -104,20 +106,37 @@ class Paper:
             "second_label": self.second_labels,
             "data": self.data.strip(),
             "link": self.link,
+            "author": self.author,
             "ref": self.ref
         }
+    
+    def add_author(self, author: str):
+        """
+        Adds an author to the paper.
+        """
+        self.author.append(author)
+
+    def from_ref_to_author(self):
+        """
+        Converts a reference to an author name.
+        """
+        for ref in self.ref:
+            for author in AUTHORS:
+                if author.lower() in ref.lower():
+                    self.add_author(author)
+                    break
 
 class PapersHTMLParser(HTMLParser):
     """
     Parses the HTML content of an email to extract paper details.
     """
-    def __init__(self, author_ref):
+    def __init__(self, author_ref: str):
         super().__init__()
         self.is_title = False
-        self.papers = []
+        self.papers: list[Paper] = []
         self.ref = author_ref
         
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag:str, attrs:list[str]):
         """
         Handles the start of an HTML tag and checks for paper titles and links.
         """
@@ -136,7 +155,7 @@ class PapersHTMLParser(HTMLParser):
         if tag == 'h3':
             self.is_title = False  # End of title section
 
-    def handle_data(self, data):
+    def handle_data(self, data: str):
         """
         Handles the raw text data within HTML tags.
         """
@@ -153,7 +172,7 @@ class PaperAggregator:
     def __init__(self):
         self.paper_list = []
         
-    def add(self, paper):
+    def add(self, paper: Paper):
         """
         Adds a paper to the list, combining references for duplicates.
         """
@@ -163,9 +182,10 @@ class PaperAggregator:
             self.paper_list[idx].add_ref(paper.ref[0])
         else:
             if len(paper.title) != 0:
+                paper.from_ref_to_author()
                 self.paper_list.append(paper)
             
-    def remove(self, paper):
+    def remove(self, paper: Paper):
         """
         Removes a paper from the list.
         """
@@ -175,7 +195,7 @@ class PaperAggregator:
         except ValueError:
             pass
 
-    def exists_by_title(self, title):
+    def exists_by_title(self, title: str) -> bool:
         """
         Checks if a paper with the given title exists in the paper_list.
 

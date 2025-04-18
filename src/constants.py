@@ -116,3 +116,12 @@ SECOND_LEVEL_KEYWORDS = {
         "Reason",
     ],
 }
+
+AUTHORS = [
+    "Xin ZHOU",
+    "David Lo",
+    "Thanh Le-Cong",
+    "Bach Le",
+    "Richard Fang",
+    "Hong Jin Kang"
+]
