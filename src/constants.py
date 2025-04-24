@@ -77,6 +77,9 @@ FIRST_LEVEL_KEYWORDS = {
         "Data Flow",
         "Call Graph"
     ],
+    "Blockchain": [
+        "Blockchain"
+    ],
 }
 
 SECOND_LEVEL_KEYWORDS = {
