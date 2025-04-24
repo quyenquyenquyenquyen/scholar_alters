@@ -118,6 +118,9 @@ SECOND_LEVEL_KEYWORDS = {
     "Reasoning": [
         "Reason",
     ],
+    "Graph": [
+        "Graph",
+    ],
 }
 
 AUTHORS = [
