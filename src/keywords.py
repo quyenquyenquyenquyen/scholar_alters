@@ -1,10 +1,3 @@
-DATA_FOLDER = "./data"
-SCOPES = [
-    'https://mail.google.com/',
-    'https://www.googleapis.com/auth/gmail.readonly'
-]
-CLIENTSECRETS_LOCATION = "./credentials.json"
-
 FIRST_LEVEL_KEYWORDS = {
     "Vulnerabilities": [
         "Software Vulnerabilities",

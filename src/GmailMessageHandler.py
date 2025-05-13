@@ -1,35 +1,5 @@
-import base64
-import json
 from html.parser import HTMLParser
-from os import path as ospath, makedirs
-import logging
-from datetime import datetime, timedelta
-import shutil
-from .constants import *  # Contains constants like DATA_FOLDER, PAPERS_LABEL, etc.
-from .connect_to_gmail import *  # Contains Gmail API functions
-
-# Set up logging to both a file and the console
-# Ensure data folder exists
-if not os.path.exists("./logs"):
-    os.makedirs("./logs")
-logging.basicConfig(
-    force=True,
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
-    handlers=[
-        logging.FileHandler("./logs/parse_gmail_message.log"),  # Logs to file
-        logging.StreamHandler()  # Logs to console
-    ]
-)
-
-def clean_title(st):
-    """
-    Cleans and formats the title text by removing unwanted characters.
-    """
-    if st[0] == '[':
-        st = st[st.find(']') + 1:]
-    st = st.replace('\\xe2\\x80\\x8f', '')
-    return st.strip()
+from .keywords import FIRST_LEVEL_KEYWORDS, SECOND_LEVEL_KEYWORDS, AUTHORS
 
 class Paper:
     """
@@ -80,6 +50,15 @@ class Paper:
         """
         Adds the title of the paper after cleaning.
         """
+        def clean_title(st):
+            """
+            Cleans and formats the title text by removing unwanted characters.
+            """
+            if st[0] == '[':
+                st = st[st.find(']') + 1:]
+            st = st.replace('\\xe2\\x80\\x8f', '')
+            return st.strip()
+
         self.title += clean_title(data) + " "
         self.idx = self.title.strip().upper()
         self._generate_label()
@@ -126,7 +105,7 @@ class Paper:
                     self.add_author(author)
                     break
 
-class PapersHTMLParser(HTMLParser):
+class w(HTMLParser):
     """
     Parses the HTML content of an email to extract paper details.
     """
@@ -211,92 +190,3 @@ class PaperAggregator:
                 return index
             index += 1
         return -1
-
-if __name__ == '__main__':
-    # Ensure data folder exists
-    if not ospath.exists(DATA_FOLDER):
-        makedirs(DATA_FOLDER)
-    
-    # Connect to Gmail API
-    service = get_service(DATA_FOLDER)
-    
-    # Get all messages with specific labels
-    emails = get_emails_from_sender_within_day(service, 'me')
-    messages = list_messages_with_email_ids(service, "me", emails)
-    if messages:
-        logging.info('Found %d messages', len(messages))
-    else:
-        logging.info('No messages found')
-        exit(0)
-    
-    # Initialize Paper Aggregator
-    pa = PaperAggregator()
-    
-    # Prepare a list to store metadata about processed emails
-    email_metadata = []
-
-    # Parse emails for papers
-    msg_count = 0
-    for msg in messages:
-        msg_count += 1
-        logging.info(f"{msg_count}/{len(messages)}")
-        msg_content = get_message(service, "me", msg['id'])
-        logging.info(msg_content)
-        
-        try:
-            msg_str = base64.urlsafe_b64decode(msg_content['payload']['body']['data'].encode('ASCII'))
-        except KeyError:
-            logging.warning("No body data")
-            continue  # Skip if email has no body data
-        
-        # Extract email subject
-        msg_title = ''
-        for h in msg_content['payload']['headers']:
-            if h['name'] == 'Subject':
-                msg_title = h['value']
-                logging.info(msg_title)
-                
-        if len(msg_title) == 0:
-            logging.warning("No title")
-            continue
-        
-        # Parse the HTML content of the email
-        parser = PapersHTMLParser(msg_title)
-        parser.feed(str(msg_str))
-        
-        # Add parsed papers to the aggregator
-        for paper in parser.papers:
-            logging.info(paper)
-            pa.add(paper)
-        
-        # Store metadata about this processed email
-        email_metadata.append({
-            "message_id": msg['id'],
-            "subject": msg_title,
-            "date": next(h['value'] for h in msg_content['payload']['headers'] if h['name'] == 'Date'),
-            "processed": True
-        })
-
-    # Check if papers.jsonl exists
-    papers_jsonl_path = ospath.join(DATA_FOLDER, 'papers.jsonl')
-    if ospath.exists(papers_jsonl_path):
-        # Create a backup with yesterday's date
-        yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        backup_path = ospath.join(DATA_FOLDER, f'{yesterday_date}.jsonl')
-        shutil.copy(papers_jsonl_path, backup_path)
-        logging.info(f"Backup created: {backup_path}")
-
-    # Export papers to JSONL file
-    with open(papers_jsonl_path, 'w', encoding='utf-8') as jsonl_file:
-        for paper in pa.paper_list:
-            json.dump(paper.to_dict(), jsonl_file)
-            jsonl_file.write('\n')
-    
-    # Export email metadata to JSONL file
-    emails_jsonl_path = ospath.join(DATA_FOLDER, 'processed_emails.jsonl')
-    with open(emails_jsonl_path, 'w', encoding='utf-8') as jsonl_file:
-        for email_data in email_metadata:
-            json.dump(email_data, jsonl_file)
-            jsonl_file.write('\n')
-    
-    logging.info("Export completed: Papers and email metadata have been written to JSONL files.")
