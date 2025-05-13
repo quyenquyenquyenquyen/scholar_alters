@@ -105,7 +105,7 @@ class Paper:
                     self.add_author(author)
                     break
 
-class w(HTMLParser):
+class PapersHTMLParser(HTMLParser):
     """
     Parses the HTML content of an email to extract paper details.
     """
