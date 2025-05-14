@@ -122,5 +122,7 @@ AUTHORS = [
     "Thanh Le-Cong",
     "Bach Le",
     "Richard Fang",
-    "Hong Jin Kang"
+    "Hong Jin Kang",
+    "Abhik Roychoudhury",
+    "Quang-Cuong Bui"
 ]
