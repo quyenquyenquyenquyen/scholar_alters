@@ -19,11 +19,9 @@ FIRST_LEVEL_KEYWORDS = {
         "Automated Repair",
     ],
     "LLM": [
-        "LLMs",
         "LLM",
-        "Large Language Models",
         "Large Language Model",
-        "ChatGPT",
+        "Language Model",
         "GPT",
         "LLaMA"
     ],
