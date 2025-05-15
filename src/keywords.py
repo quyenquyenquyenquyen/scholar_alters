@@ -71,6 +71,9 @@ FIRST_LEVEL_KEYWORDS = {
     "Blockchain": [
         "Blockchain"
     ],
+    "Software Defect": [
+        "Defect"
+    ]
 }
 
 SECOND_LEVEL_KEYWORDS = {
