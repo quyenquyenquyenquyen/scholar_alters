@@ -74,6 +74,9 @@ FIRST_LEVEL_KEYWORDS = {
     "Repository-Level": [
         "Repository-Level"
     ],
+    "GitHub Issue": [
+        "GitHub Issue"
+    ],
     "Software Defect": [
         "Defect"
     ]
