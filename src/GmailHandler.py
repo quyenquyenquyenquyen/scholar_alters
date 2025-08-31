@@ -80,7 +80,7 @@ class GmailHandler:
             token_path.write_text(env_token)
 
         if env_creds and not credentials_path.exists():
-            logger.info("Writing GOOGLE_CREDENTIALS_JSON from env to %s", credentials_path)
+            logger.info("Writing CREDENTIALS_JSON from env to %s", credentials_path)
             credentials_path.write_text(env_creds)
 
         creds = None
@@ -257,4 +257,5 @@ if __name__ == "__main__":
         messages = handler.get_message_from_email_ids(email_ids)
 
         print(f"Retrieved {len(messages)} messages")
+
 
