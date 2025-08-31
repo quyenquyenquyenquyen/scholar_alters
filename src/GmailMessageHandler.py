@@ -1,10 +1,47 @@
+import base64
+import json
+import logging
+import sys
+import time
+import argparse
 from html.parser import HTMLParser
+from os import path as ospath, makedirs
+try:
+    from .constants import *
+except ImportError:
+    from constants import *
+try:
+    from GmailHandler import GmailHandler
+except ImportError:
+    from src.GmailHandler import GmailHandler
 from .keywords import FIRST_LEVEL_KEYWORDS, SECOND_LEVEL_KEYWORDS, AUTHORS
+class UnicodeStreamHandler(logging.StreamHandler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            if hasattr(self.stream, 'buffer'):
+                self.stream.buffer.write(msg.encode('utf-8'))
+                self.stream.buffer.write(self.terminator.encode('utf-8'))
+            else:
+                self.stream.write(msg + self.terminator)
+            self.flush()
+        except Exception:
+            self.handleError(record)
+# Setup logging
+if not ospath.exists("./logs"):
+    makedirs("./logs")
+    
+logging.basicConfig(
+    force=True,
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
+    handlers=[
+        logging.FileHandler("./logs/parse_gmail_message.log", encoding='utf-8'),
+        UnicodeStreamHandler()  
+    ]
+)
 
 class Paper:
-    """
-    Represents a research paper extracted from an email.
-    """
     def __init__(self, ref):
         self.title = ''
         self.first_labels = []
@@ -12,73 +49,59 @@ class Paper:
         self.data = ''
         self.link = ''
         self.idx = ''
-        self.ref = [ref]  # Email subjects (reference) where the paper was found
+        self.ref = [ref]
         self.author = []
         
     def __str__(self):
-        return f"Title: {self.title}\n" \
-               f"Data: {self.data}\n" \
-               f"Link: {self.link}\n" \
-               f"Author: {', '.join(self.author)}\n" \
-               f"References: {', '.join(self.ref)}\n"
-               
+        return (f"Title: {self.title}\nData: {self.data}\nLink: {self.link}\n"
+               f"Author: {', '.join(self.author)}\nReferences: {', '.join(self.ref)}\n")
+    
     def add_label(self, label: str):
-        """
-        Adds the label of the paper after processing.
-        """
         if label in FIRST_LEVEL_KEYWORDS and label not in self.first_labels:
             self.first_labels.append(label)
-        
-        if label in SECOND_LEVEL_KEYWORDS  and label not in self.second_labels:
+        if label in SECOND_LEVEL_KEYWORDS and label not in self.second_labels:
             self.second_labels.append(label)
-               
+    
     def _generate_label(self):
         title = self.title.lower()
-            # Check first-level keywords
         for first_label, patterns in FIRST_LEVEL_KEYWORDS.items():
-            for pattern in patterns:
-                if pattern.lower() in title:
-                    self.add_label(first_label)
-        
-        # Check second-level keywords
+            if any(pattern.lower() in title for pattern in patterns):
+                self.add_label(first_label)
         for second_label, patterns in SECOND_LEVEL_KEYWORDS.items():
-            for pattern in patterns:
-                if pattern.lower() in title:
-                    self.add_label(second_label)
+            if any(pattern.lower() in title for pattern in patterns):
+                self.add_label(second_label)
     
-    def add_title(self, data:str):
-        """
-        Adds the title of the paper after cleaning.
-        """
+    def add_title(self, data: str):
         def clean_title(st):
-            """
-            Cleans and formats the title text by removing unwanted characters.
-            """
-            if st[0] == '[':
+            if st.startswith('['):
                 st = st[st.find(']') + 1:]
-            st = st.replace('\\xe2\\x80\\x8f', '')
-            return st.strip()
-
-        self.title += clean_title(data) + " "
-        self.idx = self.title.strip().upper()
-        self._generate_label()
+            return st.replace('\\xe2\\x80\\x8f', '').strip()
+            
+        cleaned = clean_title(data)
+        if cleaned:
+            self.title += cleaned + " "
+            self.idx = self.title.strip().upper()
+            self._generate_label()
         
-    def add_data(self, data:str):
-        """
-        Adds metadata or content of the paper.
-        """
+    def add_data(self, data: str):
         self.data += data + "\n"
         
     def add_ref(self, ref: str):
-        """
-        Adds a reference to the paper.
-        """
-        self.ref.append(ref)
+        if ref not in self.ref:
+            self.ref.append(ref)
+            
+    def add_author(self, author: str):
+        if author not in self.author:
+            self.author.append(author)
+            
+    def from_ref_to_author(self):
+        for ref in self.ref:
+            for author in AUTHORS:
+                if author.lower() in ref.lower():
+                    self.add_author(author)
+                    break
         
     def to_dict(self):
-        """
-        Converts the paper object to a dictionary format for JSONL export.
-        """
         return {
             "title": self.title.strip(),
             "first_label": self.first_labels,
@@ -88,105 +111,133 @@ class Paper:
             "author": self.author,
             "ref": self.ref
         }
-    
-    def add_author(self, author: str):
-        """
-        Adds an author to the paper.
-        """
-        self.author.append(author)
-
-    def from_ref_to_author(self):
-        """
-        Converts a reference to an author name.
-        """
-        for ref in self.ref:
-            for author in AUTHORS:
-                if author.lower() in ref.lower():
-                    self.add_author(author)
-                    break
 
 class PapersHTMLParser(HTMLParser):
-    """
-    Parses the HTML content of an email to extract paper details.
-    """
     def __init__(self, author_ref: str):
         super().__init__()
         self.is_title = False
-        self.papers: list[Paper] = []
+        self.papers = []
         self.ref = author_ref
         
-    def handle_starttag(self, tag:str, attrs:list[str]):
-        """
-        Handles the start of an HTML tag and checks for paper titles and links.
-        """
-        if tag == 'h3':  # h3 tag is assumed to indicate a new paper
+    def handle_starttag(self, tag: str, attrs: list):
+        if tag == 'h3':
             self.papers.append(Paper(self.ref))
             self.is_title = True
-        if tag == 'a' and self.is_title:
+        elif tag == 'a' and self.is_title:
             for attr in attrs:
                 if attr[0].lower() == 'href':
-                    self.papers[-1].link = attr[1]  # Set paper's link
+                    self.papers[-1].link = attr[1]
+                    break
 
-    def handle_endtag(self, tag):
-        """
-        Handles the end of an HTML tag.
-        """
+    def handle_endtag(self, tag: str):
         if tag == 'h3':
-            self.is_title = False  # End of title section
+            self.is_title = False
 
     def handle_data(self, data: str):
-        """
-        Handles the raw text data within HTML tags.
-        """
-        if len(self.papers) > 0:
+        if self.papers:
             if self.is_title:
-                self.papers[-1].add_title(data)  # Add title
+                self.papers[-1].add_title(data)
             else:
-                self.papers[-1].add_data(data)  # Add other content
+                self.papers[-1].add_data(data)
 
 class PaperAggregator:
-    """
-    Aggregates and manages papers, ensuring no duplicates.
-    """
     def __init__(self):
         self.paper_list = []
         
     def add(self, paper: Paper):
-        """
-        Adds a paper to the list, combining references for duplicates.
-        """
         idx = self.exists_by_title(paper.title)
-        
         if idx >= 0:
             self.paper_list[idx].add_ref(paper.ref[0])
-        else:
-            if len(paper.title) != 0:
-                paper.from_ref_to_author()
-                self.paper_list.append(paper)
+        elif paper.title.strip():
+            paper.from_ref_to_author()
+            self.paper_list.append(paper)
             
-    def remove(self, paper: Paper):
-        """
-        Removes a paper from the list.
-        """
-        try:
-            idx = self.paper_list.index(paper)
-            self.paper_list.pop(idx)
-        except ValueError:
-            pass
-
-    def exists_by_title(self, title: str) -> bool:
-        """
-        Checks if a paper with the given title exists in the paper_list.
-
-        Args:
-            title (str): The title of the paper to search for.
-
-        Returns:
-            bool: True if a paper with the title exists, False otherwise.
-        """
-        index = 0
-        for paper in self.paper_list:
+    def exists_by_title(self, title: str) -> int:
+        for i, paper in enumerate(self.paper_list):
             if paper.title == title:
-                return index
-            index += 1
+                return i
         return -1
+
+def process_once():
+    if not ospath.exists(DATA_FOLDER):
+        makedirs(DATA_FOLDER)
+
+    # Use GmailHandler class instead of functions
+    handler = GmailHandler(data_folder=DATA_FOLDER)
+    email_ids = handler.get_within_day_email_ids()
+    messages = handler.get_message_from_email_ids(email_ids)
+    
+    if not messages:
+        logging.info('No messages found')
+        return False
+
+    logging.info('Found %d messages', len(messages))
+    pa = PaperAggregator()
+    email_metadata = []
+
+    for i, msg in enumerate(messages):
+        logging.info(f"{i+1}/{len(messages)}")
+        
+        # Extract headers
+        headers = {h['name']: h['value'] for h in msg['payload'].get('headers', [])}
+        msg_title = headers.get('Subject', '')
+        msg_date = headers.get('Date', '')
+        
+        if not msg_title:
+            logging.warning("No title")
+            continue
+
+        # Extract message content
+        try:
+            body_data = msg['payload']['body']['data']
+            msg_str = base64.urlsafe_b64decode(body_data.encode('ASCII'))
+        except KeyError:
+            logging.warning("No body data")
+            continue
+
+        parser = PapersHTMLParser(msg_title)
+        parser.feed(msg_str.decode('ascii', errors='ignore'))
+
+        for paper in parser.papers:
+            pa.add(paper)
+
+        email_metadata.append({
+            "message_id": msg['id'],
+            "subject": msg_title,
+            "date": msg_date,
+            "processed": True
+        })
+
+    # Export papers
+    with open(ospath.join(DATA_FOLDER, 'papers.jsonl'), 'w') as f:
+        for paper in pa.paper_list:
+            json.dump(paper.to_dict(), f)
+            f.write('\n')
+
+    # Export metadata
+    with open(ospath.join(DATA_FOLDER, 'processed_emails.jsonl'), 'w') as f:
+        for email_data in email_metadata:
+            json.dump(email_data, f)
+            f.write('\n')
+
+    logging.info("Export completed")
+    return True
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Parse Gmail messages for papers.')
+    parser.add_argument('--watch', action='store_true', 
+                       help='Run continuously and poll at a fixed interval.')
+    parser.add_argument('--interval', type=int, default=900, 
+                       help='Polling interval in seconds when running with --watch.')
+    args = parser.parse_args()
+
+    if not args.watch:
+        process_once()
+    else:
+        logging.info(f"Starting watch mode with interval={args.interval}s")
+        while True:
+            try:
+                process_once()
+            except Exception as error:
+                logging.error(f'Unhandled error: {error}')
+            time.sleep(max(1, args.interval))
