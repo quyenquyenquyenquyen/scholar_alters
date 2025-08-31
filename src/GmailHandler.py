@@ -72,8 +72,8 @@ class GmailHandler:
         credentials_path = self.data_folder / "credentials.json"
 
         # Handle environment variables for CI/CD
-        env_token = os.environ.get("GOOGLE_TOKEN_JSON")
-        env_creds = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+        env_token = os.environ.get("TOKEN_CONFIG_JSON")
+        env_creds = os.environ.get("CREDENTIALS_CONFIG_JSON")
 
         if env_token and not token_path.exists():
             logger.info("Writing GOOGLE_TOKEN_JSON from env to %s", token_path)
@@ -255,4 +255,5 @@ if __name__ == "__main__":
     # Get full messages
     if email_ids:
         messages = handler.get_message_from_email_ids(email_ids)
+
         print(f"Retrieved {len(messages)} messages")
