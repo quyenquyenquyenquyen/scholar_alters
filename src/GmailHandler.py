@@ -73,7 +73,7 @@ class GmailHandler:
 
         # Handle environment variables for CI/CD
         env_token = os.environ.get("TOKEN_CONFIG_JSON")
-        env_creds = os.environ.get("CREDENTIALS_JSON")
+        env_creds = os.environ.get("CREDS_JSON")
 
         if env_token and not token_path.exists():
             logger.info("Writing GOOGLE_TOKEN_JSON from env to %s", token_path)
@@ -257,5 +257,6 @@ if __name__ == "__main__":
         messages = handler.get_message_from_email_ids(email_ids)
 
         print(f"Retrieved {len(messages)} messages")
+
 
 
