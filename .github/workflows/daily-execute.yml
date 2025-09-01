@@ -24,18 +24,21 @@ jobs:
         run: |
           mkdir -p data  # Create the data directory if it doesn't exist
 
-      - name: Create JSON for Token
-        id: create-json
-        uses: jsdaniell/create-json@v1.2.3
-        with:
-          name: "data/token.json"  # Specify the path where the JSON file will be created
-          json: ${{ secrets.TOKEN_CONFIG_JSON }}  # Use the secret for the JSON content
+      # - name: Create JSON for Token
+      #   id: create-json
+      #   uses: jsdaniell/create-json@v1.2.3
+      #   with:
+      #     name: "data/token.json"  # Specify the path where the JSON file will be created
+      #     json: ${{ secrets.TOKEN_CONFIG_JSON }}  # Use the secret for the JSON content
 
       - name: Install dependencies for Google API
         run: |
           pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
       - name: Execute script
+        env:
+          CREDS_JSON: ${{ secrets.CREDS_JSON }}
+          TOKEN_CONFIG_JSON: ${{ secrets.TOKEN_CONFIG_JSON }}
         run: |
           chmod +x script.sh # Make the script executable
           ./script.sh # Run the script
