@@ -60,28 +60,53 @@ class GmailHandler:
 
     def _get_service(self):
         """
-        Connect to the Gmail API and return an authorized service instance with enhanced features.
+        Connect to the Gmail API and return an authorized service instance.
+        """
+        # In GitHub Actions, use environment variables directly
+        if self.is_github_actions:
+            return self._get_service_github()
+        else:
+            return self._get_service_local()
 
-        Returns:
-            service: Authorized Gmail API service instance.
+    def _get_service_github(self):
+        """
+        Get Gmail service using environment variables (for GitHub Actions).
+        """
+        # Get credentials from environment variables
+        creds_json = os.environ.get('CREDS_JSON')
+        token_json = os.environ.get('TOKEN_CONFIG_JSON')
+        
+        if not creds_json or not token_json:
+            raise ValueError("CREDS_JSON and TOKEN_CONFIG_JSON environment variables are required in GitHub Actions")
+        
+        try:
+            # Parse the token JSON
+            token_info = json.loads(token_json)
+            creds = Credentials.from_authorized_user_info(token_info, self.scopes)
+            
+            # Refresh token if needed
+            if creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            
+            # Build and return the Gmail service
+            http = AuthorizedHttp(creds, http=httplib2.Http(timeout=30))
+            service = build('gmail', 'v1', http=http)
+            logger.info("Gmail service created successfully in GitHub Actions.")
+            return service
+            
+        except Exception as e:
+            logger.error(f"Failed to create Gmail service in GitHub Actions: {e}")
+            raise
+
+    def _get_service_local(self):
+        """
+        Get Gmail service using local files (for development).
         """
         # Create data folder if it doesn't exist
         self.data_folder.mkdir(parents=True, exist_ok=True)
 
         token_path = self.data_folder / "token.json"
         credentials_path = self.data_folder / "credentials.json"
-
-        # Handle environment variables for CI/CD
-        env_token = os.environ.get("TOKEN_CONFIG_JSON")
-        env_creds = os.environ.get("CREDS_JSON")
-
-        if env_token and not token_path.exists():
-            logger.info("Writing GOOGLE_TOKEN_JSON from env to %s", token_path)
-            token_path.write_text(env_token)
-
-        if env_creds and not credentials_path.exists():
-            logger.info("Writing CREDENTIALS_JSON from env to %s", credentials_path)
-            credentials_path.write_text(env_creds)
 
         creds = None
 
@@ -102,23 +127,11 @@ class GmailHandler:
                     creds.refresh(Request())
                 except RefreshError as e:
                     logger.error("RefreshError while refreshing credentials: %s", e)
-                    if self.use_github_secrets:
-                        raise ValueError(
-                            "Refresh failed while running in CI. Provide a valid token.json containing a refresh_token "
-                            "via the GOOGLE_TOKEN_JSON secret or regenerate token.json locally with offline scope."
-                        ) from e
-                    else:
-                        logger.warning("Attempting interactive flow as a fallback (local dev).")
-                        creds = self._run_local_flow(credentials_path)
-            else:
-                if self.use_github_secrets:
-                    raise ValueError(
-                        "No valid OAuth token found in CI. Ensure you supply a token.json (including a refresh_token) "
-                        "via the secret GOOGLE_TOKEN_JSON or run the local flow to create token.json and store it as a secret."
-                    )
-                else:
-                    logger.info("No valid OAuth credentials found. Starting local interactive OAuth flow.")
+                    logger.warning("Attempting interactive flow as a fallback.")
                     creds = self._run_local_flow(credentials_path)
+            else:
+                logger.info("No valid OAuth credentials found. Starting local interactive OAuth flow.")
+                creds = self._run_local_flow(credentials_path)
 
             # Save the credentials for future use
             if creds and creds.valid:
@@ -257,6 +270,7 @@ if __name__ == "__main__":
         messages = handler.get_message_from_email_ids(email_ids)
 
         print(f"Retrieved {len(messages)} messages")
+
 
 
 
