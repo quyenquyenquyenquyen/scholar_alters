@@ -29,7 +29,7 @@ jobs:
         uses: jsdaniell/create-json@v1.2.3
         with:
           name: "data/token.json"  # Specify the path where the JSON file will be created
-          json: ${{ secrets.GOOGLE_TOKEN_JSON }}  # Use the secret for the JSON content
+          json: ${{ secrets.TOKEN_CONFIG_JSON }}  # Use the secret for the JSON content
 
       - name: Install dependencies for Google API
         run: |
