@@ -62,6 +62,9 @@ class GmailHandler:
         """
         Connect to the Gmail API and return an authorized service instance.
         """
+        
+        is_github_actions = os.environ.get('GITHUB_ACTIONS') == 'true'
+        
         # In GitHub Actions, use environment variables directly
         if self.is_github_actions:
             return self._get_service_github()
@@ -270,6 +273,7 @@ if __name__ == "__main__":
         messages = handler.get_message_from_email_ids(email_ids)
 
         print(f"Retrieved {len(messages)} messages")
+
 
 
 
