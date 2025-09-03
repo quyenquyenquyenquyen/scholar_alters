@@ -190,13 +190,13 @@ def process_once():
         # Extract message content
         try:
             body_data = msg['payload']['body']['data']
-            msg_str = base64.urlsafe_b64decode(body_data.encode('ASCII'))
+            msg_str = base64.urlsafe_b64decode(body_data.encode('UTF-8'))
         except KeyError:
             logging.warning("No body data")
             continue
 
         parser = PapersHTMLParser(msg_title)
-        parser.feed(msg_str.decode('ascii', errors='ignore'))
+        parser.feed(msg_str.decode('utf-8', errors='ignore'))
 
         for paper in parser.papers:
             pa.add(paper)
@@ -240,4 +240,5 @@ if __name__ == '__main__':
                 process_once()
             except Exception as error:
                 logging.error(f'Unhandled error: {error}')
+
             time.sleep(max(1, args.interval))
