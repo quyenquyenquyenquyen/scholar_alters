@@ -190,7 +190,7 @@ def process_once():
         # Extract message content
         try:
             body_data = msg['payload']['body']['data']
-            msg_str = base64.urlsafe_b64decode(body_data.encode('UTF-8'))
+            msg_str = base64.urlsafe_b64decode(body_data)
         except KeyError:
             logging.warning("No body data")
             continue
@@ -242,3 +242,4 @@ if __name__ == '__main__':
                 logging.error(f'Unhandled error: {error}')
 
             time.sleep(max(1, args.interval))
+
